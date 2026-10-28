@@ -1,0 +1,1081 @@
+[
+  {
+    "dashboard": "cache-clearing",
+    "panel": 4,
+    "title": "Flush All Caches Rate (per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "rate(com_atlassian_jira_metrics_Count{category00=\"cacheManager\",name=\"flushAll\"}[5m])"
+    ]
+  },
+  {
+    "dashboard": "cache-clearing",
+    "panel": 5,
+    "title": "Remove all entries rate (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum by (tag_pluginKeyAtCreation) (rate(com_atlassian_jira_metrics_Count{category00=\"cache\",name=\"removeAll\"}[5m]))"
+    ]
+  },
+  {
+    "dashboard": "cache-clearing",
+    "panel": 2,
+    "title": "Plugin enabled/disabled events (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Count{category00=\"plugin\",name=\"counter\",category01=\"enabled\"})",
+      "sum without (instance) (com_atlassian_jira_metrics_Count{category00=\"plugin\",name=\"counter\",category01=\"disabled\"})"
+    ]
+  },
+  {
+    "dashboard": "cache-clearing",
+    "panel": 6,
+    "title": "Reset cache rate (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum by (tag_pluginKeyAtCreation) (rate(com_atlassian_jira_metrics_Count{category00=\"cachedReference\",name=\"reset\"}[5m]))"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 2,
+    "title": "Active Cluster Locks Held (current - cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance,tag_pluginKeyAtCreation,tag_implementation,tag_lockName) (com_atlassian_jira_metrics_Value{category00=\"cluster\",category01=\"lock\",category02=\"held\",tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 7,
+    "title": "Active Locks Waiting (current - cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance,tag_pluginKeyAtCreation,tag_implementation,tag_lockName) (com_atlassian_jira_metrics_Value{category00=\"cluster\",category01=\"lock\",category02=\"held\",tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 5,
+    "title": "Active Cluster Locks Held (over time - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without(instance,implementation, tag_lockName) (com_atlassian_jira_metrics_Value{category00=\"cluster\",category01=\"lock\",category02=\"held\",tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 6,
+    "title": "Active Locks Waiting (over time - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without(instance,implementation, tag_lockName) (com_atlassian_jira_metrics_Value{category00=\"cluster\",category01=\"lock\",category02=\"waited\",tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 3,
+    "title": "Most locks held (cluster wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg by (tag_lockName, tag_pluginKeyAtCreation) (com_atlassian_jira_metrics_Mean{category00=\"cluster\",category01=\"lock\",category02=\"held\"})",
+      "sum by (tag_lockName, tag_pluginKeyAtCreation) (com_atlassian_jira_metrics_Count{category00=\"cluster\",category01=\"lock\",category02=\"held\"})",
+      "max by (tag_lockName, tag_pluginKeyAtCreation)  (com_atlassian_jira_metrics_99thPercentile{category00=\"cluster\",category01=\"lock\",category02=\"held\"})"
+    ]
+  },
+  {
+    "dashboard": "cluster-locks",
+    "panel": 11,
+    "title": "Most locks waited (cluster wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg by (tag_lockName, tag_pluginKeyAtCreation) (com_atlassian_jira_metrics_Mean{category00=\"cluster\",category01=\"lock\",category02=\"waited\"})",
+      "sum by (tag_lockName, tag_pluginKeyAtCreation) (com_atlassian_jira_metrics_Count{category00=\"cluster\",category01=\"lock\",category02=\"waited\"})",
+      "max by (tag_lockName, tag_pluginKeyAtCreation)  (com_atlassian_jira_metrics_99thPercentile{category00=\"cluster\",category01=\"lock\",category02=\"waited\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 30,
+    "title": "Overall DB Load (last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\nsum without (instance) ((com_atlassian_jira_metrics_Mean{name=\"executionTime\", category00=\"db\", category01=\"core\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"executionTime\", category00=\"db\", category01=\"core\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 24,
+    "title": "DB Execution Times (Cluster Wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance, tag_query, category00, category01) (com_atlassian_jira_metrics_Mean{name=\"executionTime\", category00=\"db\", category01=\"core\"})",
+      "sum without (instance, tag_query, category00, category01) (com_atlassian_jira_metrics_Count{name=\"executionTime\", category00=\"db\", category01=\"core\"})",
+      "max without (instance, tag_query, category00, category01) (com_atlassian_jira_metrics_99thPercentile{name=\"executionTime\", category00=\"db\", category01=\"core\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 26,
+    "title": "DB Execution Time (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{name=\"executionTime\", category00=\"db\", category01=\"core\"}"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 29,
+    "title": "Cumulative count of DB executions (cluster wide) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance, tag_entityType) (com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"core\", name=\"executionTime\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 28,
+    "title": "DB Execution Times (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance) ((com_atlassian_jira_metrics_Mean{name=\"executionTime\", category00=\"db\", category01=\"core\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"executionTime\", category00=\"db\", category01=\"core\"}[5m]))) /\n(sum without (instance) (delta(com_atlassian_jira_metrics_Count{name=\"executionTime\", category00=\"db\", category01=\"core\"}[5m]))))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 2,
+    "title": "Load via AO's EntityManager (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}[5m]))))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 31,
+    "title": "Operation times via AO's EntityManager (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 20,
+    "title": "Cumulative count using AO's EntityManager (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance, tag_entityType) (com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", category02=\"entityManager\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 6,
+    "title": "Operation times via AO's EntityManager (p99)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"db\", category01=\"ao\", category02=\"entityManager\"}"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 32,
+    "title": "Load via AO's executeInTransaction (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_taskName) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}[5m]))))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 33,
+    "title": "Operation times via AO's executeInTransaction (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_taskName) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}[5m])))) /\n(sum without (instance, tag_taskName) (delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 34,
+    "title": "Cumulative count using AO's executeInTransaction (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance, tag_taskName) (com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 35,
+    "title": "Operation times via AO's executeInTransaction (p99)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 3,
+    "title": "Total active operations running  via AO's executeInTransaction (current - cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance, tag_taskName, tag_invokerPluginKey) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"ao\",name=\"executeInTransaction\", tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 8,
+    "title": "Active operations running via AO's executeInTransaction (over time - active count)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"ao\",name=\"executeInTransaction\", tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 36,
+    "title": "Load via SAL's transactionalExecutor (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_taskName) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"sal\", name=\"transactionalExecutor\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"sal\", name=\"transactionalExecutor\"}[5m]))))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 38,
+    "title": "Operation times via SAL's transactionalExecutor (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_taskName) ((com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}[5m])))) /\n(sum without (instance, tag_taskName) (delta(com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"ao\", name=\"executeInTransaction\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 37,
+    "title": "Cumulative count using SAL's transactionalExecutor (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance, tag_taskName) (com_atlassian_jira_metrics_Count{category00=\"db\", category01=\"sal\", name=\"transactionalExecutor\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 39,
+    "title": "Operation times via SAL's transactionalExecutor (p99)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"db\", category01=\"sal\", name=\"transactionalExecutor\"}"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 18,
+    "title": "Total active operations running  via SAL's transactionalExecutor (current - cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance, tag_taskName, tag_invokerPluginKey) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"sal\",name=\"transactionalExecutor\", tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 19,
+    "title": "Active operations using SAL's transactionalExecutor (over time - active count)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"sal\",name=\"transactionalExecutor\",tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 7,
+    "title": "AO Upgrade Tasks - (current - active count)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance, tag_fromPluginKey, tag_taskName) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"ao\",name=\"upgradeTask\",tag_statistic=\"active\",tag_subCategory=\"current\"})"
+    ]
+  },
+  {
+    "dashboard": "database-load",
+    "panel": 9,
+    "title": "AO Upgrade Tasks - (over time - active count)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Value{category00=\"db\",category01=\"ao\",name=\"upgradeTask\",tag_statistic=\"active\",tag_subCategory=\"current\"})"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 22,
+    "title": "Status",
+    "source_type": "stat",
+    "metrics": [
+      "up"
+    ],
+    "queries": [
+      "up{}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 21,
+    "title": "Uptime",
+    "source_type": "stat",
+    "metrics": [
+      "process_start_time_seconds"
+    ],
+    "queries": [
+      "time() - process_start_time_seconds{}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 23,
+    "title": "Start time",
+    "source_type": "stat",
+    "metrics": [
+      "java_lang_Runtime_StartTime"
+    ],
+    "queries": [
+      "java_lang_Runtime_StartTime{}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 24,
+    "title": "CPU Cores",
+    "source_type": "stat",
+    "metrics": [
+      "java_lang_OperatingSystem_AvailableProcessors"
+    ],
+    "queries": [
+      "java_lang_OperatingSystem_AvailableProcessors{}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 33,
+    "title": "GC Time",
+    "source_type": "timeseries",
+    "metrics": [
+      "jvm_gc_collection_seconds_sum"
+    ],
+    "queries": [
+      "increase(jvm_gc_collection_seconds_sum{}[5m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 6,
+    "title": "CPU",
+    "source_type": "timeseries",
+    "metrics": [
+      "java_lang_OperatingSystem_ProcessCpuLoad"
+    ],
+    "queries": [
+      "(java_lang_OperatingSystem_ProcessCpuLoad{} * 1000)"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 8,
+    "title": "Heap Used %",
+    "source_type": "timeseries",
+    "metrics": [
+      "jvm_memory_bytes_max",
+      "jvm_memory_bytes_used"
+    ],
+    "queries": [
+      "100*(jvm_memory_bytes_used{area=\"heap\"}/jvm_memory_bytes_max{area=\"heap\"})"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 34,
+    "title": "GC Count",
+    "source_type": "timeseries",
+    "metrics": [
+      "jvm_gc_collection_seconds_count"
+    ],
+    "queries": [
+      "increase(jvm_gc_collection_seconds_count{}[5m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 18,
+    "title": "Blocked Threads",
+    "source_type": "gauge",
+    "metrics": [
+      "jvm_threads_state"
+    ],
+    "queries": [
+      "jvm_threads_state{state=\"BLOCKED\"}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 19,
+    "title": "Tomcat Threads",
+    "source_type": "timeseries",
+    "metrics": [
+      "Catalina_ThreadPool_currentThreadCount",
+      "Catalina_ThreadPool_maxThreads"
+    ],
+    "queries": [
+      "( Catalina_ThreadPool_currentThreadCount{} / Catalina_ThreadPool_maxThreads{}) * 100"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 25,
+    "title": "Tomcat Request Count",
+    "source_type": "timeseries",
+    "metrics": [
+      "Catalina_GlobalRequestProcessor_requestCount"
+    ],
+    "queries": [
+      "increase(Catalina_GlobalRequestProcessor_requestCount{}[5m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 37,
+    "title": "Tomcat Error Count",
+    "source_type": "timeseries",
+    "metrics": [
+      "Catalina_GlobalRequestProcessor_errorCount"
+    ],
+    "queries": [
+      "increase(Catalina_GlobalRequestProcessor_errorCount{}[5m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 26,
+    "title": "Tomcat Request Processing Time",
+    "source_type": "timeseries",
+    "metrics": [
+      "Catalina_GlobalRequestProcessor_processingTime",
+      "Catalina_GlobalRequestProcessor_requestCount"
+    ],
+    "queries": [
+      "increase(Catalina_GlobalRequestProcessor_processingTime{}[10m]) / increase(Catalina_GlobalRequestProcessor_requestCount{}[10m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 27,
+    "title": "Tomcat Sessions",
+    "source_type": "timeseries",
+    "metrics": [
+      "Catalina_Manager_activeSessions",
+      "Catalina_Manager_rejectedSessions"
+    ],
+    "queries": [
+      "Catalina_Manager_activeSessions{}",
+      "Catalina_Manager_rejectedSessions{}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 10,
+    "title": "Connection Pool Utilisation",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_BasicDataSource_MaxTotal",
+      "com_atlassian_jira_BasicDataSource_NumActive"
+    ],
+    "queries": [
+      "(com_atlassian_jira_BasicDataSource_NumActive{connectionpool=\"connections\"} / com_atlassian_jira_BasicDataSource_MaxTotal{connectionpool=\"connections\"}) * 100"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 35,
+    "title": "Connection Pool",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_BasicDataSource_NumActive",
+      "com_atlassian_jira_BasicDataSource_NumIdle"
+    ],
+    "queries": [
+      "com_atlassian_jira_BasicDataSource_NumActive{connectionpool=\"connections\"}",
+      "com_atlassian_jira_BasicDataSource_NumIdle{connectionpool=\"connections\"}"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 36,
+    "title": "Reads / Writes",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_db_reads_invocation_count",
+      "com_atlassian_jira_db_writes_invocation_count"
+    ],
+    "queries": [
+      "delta(com_atlassian_jira_db_reads_invocation_count{}[5m])",
+      "delta(com_atlassian_jira_db_writes_invocation_count{}[5m])"
+    ]
+  },
+  {
+    "dashboard": "general",
+    "panel": 41,
+    "title": "Database Latency",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_Mean{category00=\"db\", category01=\"connection\", category02=\"latency\"}"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 8,
+    "title": "Issue Reindex (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{name=\"ReIndex\", category00=\"issue\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"ReIndex\", category00=\"issue\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{name=\"ReIndex\", category00=\"issue\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 18,
+    "title": "Comment Reindexing by Plugin (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{category00=\"comment\", name=\"reindexing\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"comment\", name=\"reindexing\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{category00=\"comment\", name=\"reindexing\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 13,
+    "title": "Issue Reindexing by Plugin (mean last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{name=\"reindexing\", category00=\"issue\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"reindexing\", category00=\"issue\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{name=\"reindexing\", category00=\"issue\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 17,
+    "title": "Comment Reindexing by Plugin (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"comment\", name=\"reindexing\"}"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 16,
+    "title": "Comment Reindexing by Plugin (count - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "avg without (instance) (com_atlassian_jira_metrics_Count{category00=\"comment\", name=\"reindexing\"})"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 12,
+    "title": "Issue Reindexing by Plugin (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"issue\", name=\"reindexing\"}"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 19,
+    "title": "Issue Reindexing by Plugin (count - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Count{category00=\"issue\", name=\"reindexing\"})"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 21,
+    "title": "Active Comment Reindexing Operations - (cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without(instance, tag_invokerPluginKey) (com_atlassian_jira_metrics_Value{category00=\"comment\", name=\"reindexing\", tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 22,
+    "title": "Active Issue Reindexing Operations - (cluster wide)",
+    "source_type": "gauge",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without(instance, tag_invokerPluginKey) (com_atlassian_jira_metrics_Value{category00=\"issue\", name=\"reindexing\", tag_statistic=\"active\"})"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 2,
+    "title": "Custom fields indexing times (cluster-wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance) (com_atlassian_jira_metrics_Mean{name=\"addIndex\", category01=\"field\"})\n\n",
+      "max without (instance) (com_atlassian_jira_metrics_99thPercentile{name=\"addIndex\", category01=\"field\"})"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 4,
+    "title": "Custom field indexing time (mean last 5 minutes - cluster wide) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance) ((com_atlassian_jira_metrics_Mean{name=\"addIndex\", category01=\"field\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"addIndex\", category01=\"field\"}[5m])))) /\n(sum without (instance) (delta(com_atlassian_jira_metrics_Count{name=\"addIndex\", category01=\"field\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "indexing",
+    "panel": 10,
+    "title": "Custom field total indexing time by plugin (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "sum by (tag_fromPluginKey) (com_atlassian_jira_metrics_Mean{name=\"addIndex\", category01=\"field\"}) + sum by (tag_fromPluginKey) (com_atlassian_jira_metrics_Mean{name=\"isFieldIndexableForIssue\", category01=\"field\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 45,
+    "title": "Search load - (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\nsum without (instance) ((com_atlassian_jira_metrics_Mean{category00=\"search\",name=\"index\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"search\",name=\"index\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 41,
+    "title": "Search evaluations (cluster-wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance, tag_query, category00) (com_atlassian_jira_metrics_Mean{category00=\"search\", name=\"index\"})",
+      "sum without (instance, tag_query, category00) (com_atlassian_jira_metrics_Count{category00=\"search\", name=\"index\"})",
+      "max without (instance, tag_query, category00) (com_atlassian_jira_metrics_99thPercentile{category00=\"search\", name=\"index\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 47,
+    "title": "Searches count (last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance) (increase(com_atlassian_jira_metrics_Count{category00=\"search\", name=\"index\"}[5m]))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 38,
+    "title": "Search evaluation times (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"search\", name=\"index\"}"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 17,
+    "title": "Web fragment condition evaluation time (mean - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance) ((com_atlassian_jira_metrics_Mean{category00=\"web\", category01=\"fragment\", name=\"condition\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"web\", category01=\"fragment\", name=\"condition\"}[5m])))) /\n(sum without (instance) (delta(com_atlassian_jira_metrics_Count{category00=\"web\", category01=\"fragment\", name=\"condition\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 6,
+    "title": "Web fragment condition evaluation time (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{category00=\"web\", category01=\"fragment\", name=\"condition\"}"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 25,
+    "title": "Soy web panel render times (cluster-wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance, tag_templateName) (com_atlassian_jira_metrics_Mean{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"})",
+      "sum without (instance, tag_templateName) (com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"})",
+      "max without (instance, tag_templateName) (com_atlassian_jira_metrics_99thPercentile{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 3,
+    "title": "Soy web panel render time (mean of last 5 minutes - cluster wide) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 18,
+    "title": "Soy web panel render time (p99 - per node) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "com_atlassian_jira_metrics_99thPercentile{name=\"webTemplateRenderer\",tag_templateRenderer=\"soy\"}"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 34,
+    "title": "Velocity web panel render times (cluster-wide)",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "topk(500, avg without (instance, tag_templateName) (com_atlassian_jira_metrics_Mean{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"}) )",
+      "sum without (instance, tag_templateName) (com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"})",
+      "max without (instance, tag_templateName) (com_atlassian_jira_metrics_99thPercentile{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 13,
+    "title": "velocity web panel response time (mean of last 5 minutes - cluster wide) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance) ((com_atlassian_jira_metrics_Mean{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"}) * \n(delta(com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"}[5m])))) /\n(sum without (instance) (delta(com_atlassian_jira_metrics_Count{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 14,
+    "title": "velocity web panel response time (p99 - per node) ",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "topk(5, com_atlassian_jira_metrics_99thPercentile{name=\"webTemplateRenderer\",tag_templateRenderer=\"velocity\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 5,
+    "title": "web resource condition evaluation time (mean - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance) (com_atlassian_jira_metrics_Mean{category00=\"web\", category01=\"resource\", name=\"condition\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 19,
+    "title": "web resource condition evaluation time (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "topk(5, com_atlassian_jira_metrics_99thPercentile{category00=\"web\", category01=\"resource\", name=\"condition\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 27,
+    "title": "Most requested endpoints & response time",
+    "source_type": "table",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile",
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "topk(500, avg without (instance) (com_atlassian_jira_metrics_Mean{category00=\"http\", category01=\"rest\", name=\"request\"}))",
+      "sum without (instance) (com_atlassian_jira_metrics_Count{category00=\"http\", category01=\"rest\", name=\"request\"})",
+      "max without (instance) (com_atlassian_jira_metrics_99thPercentile{category00=\"http\", category01=\"rest\", name=\"request\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 22,
+    "title": "HTTP REST response time (mean of last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_entityType) ((com_atlassian_jira_metrics_Mean{category00=\"http\", category01=\"rest\", name=\"request\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"http\", category01=\"rest\", name=\"request\"}[5m])))) /\n(sum without (instance, tag_entityType) (delta(com_atlassian_jira_metrics_Count{category00=\"http\", category01=\"rest\", name=\"request\"}[5m])))"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 23,
+    "title": "HTTP REST response time (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "topk(5, com_atlassian_jira_metrics_99thPercentile{category00=\"http\", category01=\"rest\", name=\"request\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 29,
+    "title": "HTTP REST average response time per plugin",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "avg without (instance, tag_path, tag_action) (com_atlassian_jira_metrics_Mean{category00=\"http\",category01=\"rest\", name=\"request\"})"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 32,
+    "title": "HTTP SAL request time (mean of last 5 minutes - cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count",
+      "com_atlassian_jira_metrics_Mean"
+    ],
+    "queries": [
+      "# We do this because the average of averages is not the real average. We must weigh them by the count\n(sum without (instance, tag_action) ((com_atlassian_jira_metrics_Mean{category00=\"http\", category01=\"sal\", name=\"request\"}) * \n(delta(com_atlassian_jira_metrics_Count{category00=\"http\", category01=\"sal\", name=\"request\"}[5m])))) /\n(sum without (instance, tag_action) (delta(com_atlassian_jira_metrics_Count{category00=\"http\", category01=\"sal\", name=\"request\"}[5m])))\n"
+    ]
+  },
+  {
+    "dashboard": "response-times",
+    "panel": 33,
+    "title": "HTTP SAL request time (p99 - per node)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_99thPercentile"
+    ],
+    "queries": [
+      "topk(5, com_atlassian_jira_metrics_99thPercentile{category00=\"http\", category01=\"sal\", name=\"request\"})"
+    ]
+  },
+  {
+    "dashboard": "tasks",
+    "panel": 4,
+    "title": "Task Count (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Count"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Count{name=\"task\"})"
+    ]
+  },
+  {
+    "dashboard": "tasks",
+    "panel": 2,
+    "title": "Long Running Task Count (cluster wide)",
+    "source_type": "timeseries",
+    "metrics": [
+      "com_atlassian_jira_metrics_Value"
+    ],
+    "queries": [
+      "sum without (instance) (com_atlassian_jira_metrics_Value{name=\"longRunningTask\", tag_statistic=\"active\"})"
+    ]
+  }
+]

@@ -1,0 +1,20 @@
+if (!doc.containsKey(params.time_field) || doc[params.time_field].size()==0) return;
+long t=doc[params.time_field].value.toInstant().toEpochMilli();
+def labels=new TreeMap();
+for (def f:params.labels) {
+ if(doc.containsKey(f) && doc[f].size()!=0) labels[f]=doc[f].value.toString();
+}
+for (int i=0;i<params.nodes.size();i++) {
+ def n=params.nodes[i];if(n.op!='leaf')continue;
+ if(!doc.containsKey(n.metric) || doc[n.metric].size()==0)continue;
+ boolean matched=true;
+ for(def e:n.match.entrySet()) {if(!labels.containsKey(e.getKey()) || labels[e.getKey()]!=e.getValue()) {matched=false;break;}}
+ if(!matched)continue;
+ double v=((Number)doc[n.metric].value).doubleValue();
+ if(!Double.isFinite(v))continue;
+ String key=i+'|'+labels.toString();
+ if(!state.series.containsKey(key))state.series[key]=['node':i,'labels':labels,'samples':[]];
+ state.series[key].samples.add([t,v]);
+ state.count++;
+ if(state.count>params.sample_limit)throw new IllegalArgumentException('Jira panel sample limit exceeded. Narrow the dashboard time range.');
+}

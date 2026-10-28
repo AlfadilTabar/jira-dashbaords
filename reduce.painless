@@ -1,0 +1,134 @@
+String key(def labels) {def sorted=new TreeMap(); sorted.putAll(labels); return sorted.toString();}
+def point(def labels,double v) {return ['labels':labels,'value':v];}
+def leaf(def series,def node,int idx,long now) {
+ def out=new HashMap();
+ for(def s:series) {
+  if(s.node!=idx)continue;
+  def a=s.samples; int first=-1;int last=-1;
+  long window=node.fn=='instant'?300000L:((Number)node.window).longValue();
+  for(int j=0;j<a.size();j++) {
+   long ts=((Number)a[j][0]).longValue();
+   if(ts>now)break;
+   if(ts>now-window || (node.fn=='instant' && ts==now-window)) {if(first<0)first=j;last=j;}
+  }
+  if(last<0)continue;
+  double v=((Number)a[last][1]).doubleValue();
+  if(node.fn!='instant') {
+   if(last<=first)continue;
+   double firstValue=((Number)a[first][1]).doubleValue();
+   v-=firstValue;
+   if(node.fn!='delta') {
+    double prev=firstValue;
+    for(int j=first+1;j<=last;j++) {
+     double next=((Number)a[j][1]).doubleValue();
+     if(next<prev)v+=prev;
+     prev=next;
+    }
+   }
+   double sampled=(((Number)a[last][0]).longValue()-((Number)a[first][0]).longValue())/1000.0;
+   if(sampled<=0)continue;
+   double average=sampled/(last-first);
+   double toStart=(((Number)a[first][0]).longValue()-(now-window))/1000.0;
+   double toEnd=(now-((Number)a[last][0]).longValue())/1000.0;
+   if(toStart>=average*1.1)toStart=average/2;
+   if(node.fn!='delta' && v>0 && firstValue>=0)toStart=Math.min(toStart,sampled*(firstValue/v));
+   if(toEnd>=average*1.1)toEnd=average/2;
+   double factor=(sampled+toStart+toEnd)/sampled;
+   if(node.fn=='rate')factor/=window/1000.0;
+   v*=factor;
+  }
+  if(Double.isFinite(v))out[key(s.labels)]=point(s.labels,v);
+ }
+ return out;
+}
+double calc(String op,double a,double b) {
+ if(op=='+')return a+b;if(op=='-')return a-b;if(op=='*')return a*b;
+ return b==0?Double.NaN:a/b;
+}
+def binary(String op,def a,def b) {
+ if(a instanceof Number && b instanceof Number)return calc(op,((Number)a).doubleValue(),((Number)b).doubleValue());
+ def out=new HashMap();
+ if(a instanceof Number || b instanceof Number) {
+  boolean scalarLeft=a instanceof Number;def vector=scalarLeft?b:a;
+  for(def e:vector.entrySet()) {
+   double v=scalarLeft?calc(op,((Number)a).doubleValue(),e.getValue().value):calc(op,e.getValue().value,((Number)b).doubleValue());
+   if(Double.isFinite(v))out[e.getKey()]=point(e.getValue().labels,v);
+  }
+ } else {
+  for(def e:a.entrySet()) {
+   if(!b.containsKey(e.getKey()))continue;
+   double v=calc(op,e.getValue().value,b[e.getKey()].value);
+   if(Double.isFinite(v))out[e.getKey()]=point(e.getValue().labels,v);
+  }
+ }
+ return out;
+}
+def aggregate(def n,def input) {
+ def out=new HashMap();def counts=new HashMap();
+ for(def p:input.values()) {
+  def labels=new TreeMap();
+  for(def e:p.labels.entrySet()) {
+   boolean contains=n.labels.contains(e.getKey());
+   if((n.mode=='by' && contains)||(n.mode=='without' && !contains))labels[e.getKey()]=e.getValue();
+  }
+  String k=key(labels);
+  if(!out.containsKey(k)) {out[k]=point(labels,p.value);counts[k]=1;}
+  else {out[k].value=n.fn=='max'?Math.max((double)out[k].value,(double)p.value):(double)out[k].value+(double)p.value;counts[k]+=1;}
+ }
+ if(n.fn=='avg')for(def e:out.entrySet())e.getValue().value/=counts[e.getKey()];
+ return out;
+}
+def merged=new HashMap();
+for(def state:states) {
+ if(state==null)continue;
+ for(def e:state.entrySet()) {
+  if(!merged.containsKey(e.getKey()))merged[e.getKey()]=e.getValue();
+  else merged[e.getKey()].samples.addAll(e.getValue().samples);
+ }
+}
+def series=new ArrayList(merged.values());
+long total=0;
+for(def s:series) {
+ total+=s.samples.size();
+ if(total>params.sample_limit)throw new IllegalArgumentException('Jira panel sample limit exceeded. Narrow the dashboard time range.');
+ s.samples.sort((a,b)->Long.compare(((Number)a[0]).longValue(),((Number)b[0]).longValue()));
+ // Duplicate metric/label/timestamp samples are deduplicated. Conflicting values are rejected.
+ def clean=[];
+ for(def a:s.samples) {
+  if(clean.size()>0 && clean[clean.size()-1][0]==a[0]) {
+   if(clean[clean.size()-1][1]!=a[1])throw new IllegalArgumentException('Conflicting samples for identical Jira series and timestamp');
+  } else clean.add(a);
+ }
+ s.samples=clean;
+}
+long start=params.start instanceof Number?((Number)params.start).longValue():Instant.parse(params.start).toEpochMilli();
+long end=params.end instanceof Number?((Number)params.end).longValue():Instant.parse(params.end).toEpochMilli();
+long step=(long)Math.max(60000L,(long)Math.ceil((end-start)/(double)params.points/60000.0)*60000L);
+if(params.snapshot)start=end;
+def result=[];
+for(long now=start;now<=end;now+=step) {
+ def evaluated=[];
+ for(int i=0;i<params.nodes.size();i++) {
+  def n=params.nodes[i];def value=null;
+  if(n.op=='leaf')value=leaf(series,n,i,now);
+  else if(n.op=='number')value=n.value;
+  else if(n.op=='time')value=now/1000.0;
+  else if(n.op=='binary')value=binary(n.operator,evaluated[n.left],evaluated[n.right]);
+  else if(n.op=='aggregate')value=aggregate(n,evaluated[n.input]);
+  else if(n.op=='topk') {
+   def sorted=new ArrayList(evaluated[n.input].values());
+   sorted.sort((a,b)->Double.compare((double)b.value,(double)a.value));value=new HashMap();
+   for(int j=0;j<Math.min((int)n.n,sorted.size());j++)value[key(sorted[j].labels)]=sorted[j];
+  }
+  evaluated.add(value);
+ }
+ for(def root:params.roots) {
+  def values=evaluated[root.node];
+  if(values instanceof Number)values=['{}':point(new HashMap(),((Number)values).doubleValue())];
+  for(def p:values.values()) {
+   result.add(['time':now,'series':key(p.labels),'query':root.ref,'value':p.value]);
+   if(result.size()>params.output_limit)throw new IllegalArgumentException('Jira panel output limit exceeded. Narrow the time range or filter series.');
+  }
+ }
+}
+return result;

@@ -1,0 +1,169 @@
+{
+  "properties": {
+    "@timestamp": {
+      "type": "date"
+    },
+    "Catalina_GlobalRequestProcessor_errorCount": {
+      "type": "double"
+    },
+    "Catalina_GlobalRequestProcessor_processingTime": {
+      "type": "double"
+    },
+    "Catalina_GlobalRequestProcessor_requestCount": {
+      "type": "double"
+    },
+    "Catalina_Manager_activeSessions": {
+      "type": "double"
+    },
+    "Catalina_Manager_rejectedSessions": {
+      "type": "double"
+    },
+    "Catalina_ThreadPool_currentThreadCount": {
+      "type": "double"
+    },
+    "Catalina_ThreadPool_maxThreads": {
+      "type": "double"
+    },
+    "com_atlassian_jira_BasicDataSource_MaxTotal": {
+      "type": "double"
+    },
+    "com_atlassian_jira_BasicDataSource_NumActive": {
+      "type": "double"
+    },
+    "com_atlassian_jira_BasicDataSource_NumIdle": {
+      "type": "double"
+    },
+    "com_atlassian_jira_db_reads_invocation_count": {
+      "type": "double"
+    },
+    "com_atlassian_jira_db_writes_invocation_count": {
+      "type": "double"
+    },
+    "com_atlassian_jira_metrics_99thPercentile": {
+      "type": "double"
+    },
+    "com_atlassian_jira_metrics_Count": {
+      "type": "double"
+    },
+    "com_atlassian_jira_metrics_Mean": {
+      "type": "double"
+    },
+    "com_atlassian_jira_metrics_Value": {
+      "type": "double"
+    },
+    "java_lang_OperatingSystem_AvailableProcessors": {
+      "type": "double"
+    },
+    "java_lang_OperatingSystem_ProcessCpuLoad": {
+      "type": "double"
+    },
+    "java_lang_Runtime_StartTime": {
+      "type": "double"
+    },
+    "jvm_gc_collection_seconds_count": {
+      "type": "double"
+    },
+    "jvm_gc_collection_seconds_sum": {
+      "type": "double"
+    },
+    "jvm_memory_bytes_max": {
+      "type": "double"
+    },
+    "jvm_memory_bytes_used": {
+      "type": "double"
+    },
+    "jvm_threads_state": {
+      "type": "double"
+    },
+    "process_start_time_seconds": {
+      "type": "double"
+    },
+    "up": {
+      "type": "double"
+    },
+    "area": {
+      "type": "keyword"
+    },
+    "category00": {
+      "type": "keyword"
+    },
+    "category01": {
+      "type": "keyword"
+    },
+    "category02": {
+      "type": "keyword"
+    },
+    "connectionpool": {
+      "type": "keyword"
+    },
+    "gc": {
+      "type": "keyword"
+    },
+    "implementation": {
+      "type": "keyword"
+    },
+    "instance": {
+      "type": "keyword"
+    },
+    "job": {
+      "type": "keyword"
+    },
+    "name": {
+      "type": "keyword"
+    },
+    "product": {
+      "type": "keyword"
+    },
+    "state": {
+      "type": "keyword"
+    },
+    "tag_action": {
+      "type": "keyword"
+    },
+    "tag_conditionClassName": {
+      "type": "keyword"
+    },
+    "tag_entityType": {
+      "type": "keyword"
+    },
+    "tag_fieldId": {
+      "type": "keyword"
+    },
+    "tag_fromPluginKey": {
+      "type": "keyword"
+    },
+    "tag_implementation": {
+      "type": "keyword"
+    },
+    "tag_invokerPluginKey": {
+      "type": "keyword"
+    },
+    "tag_lockName": {
+      "type": "keyword"
+    },
+    "tag_path": {
+      "type": "keyword"
+    },
+    "tag_pluginKeyAtCreation": {
+      "type": "keyword"
+    },
+    "tag_query": {
+      "type": "keyword"
+    },
+    "tag_statistic": {
+      "type": "keyword"
+    },
+    "tag_subCategory": {
+      "type": "keyword"
+    },
+    "tag_taskName": {
+      "type": "keyword"
+    },
+    "tag_templateName": {
+      "type": "keyword"
+    },
+    "tag_templateRenderer": {
+      "type": "keyword"
+    }
+  }
+}
